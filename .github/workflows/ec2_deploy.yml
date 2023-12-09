@@ -92,3 +92,22 @@ jobs:
       - name: Run tests
         run: |
           npm run test -- --colors
+
+  Deploy:
+    needs:
+      - Build
+      - Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Ansible playbook
+        run: |
+          echo "${{ secrets.SSH_DEVOPS_KEY }}" > ./ansible/devops.pem
+          echo "${{ secrets.VAULT_PASS }}" > ./ansible/vault_pass
+          chmod 400 ./ansible/devops.pem
+          ansible-playbook ./ansible/ec2_deploy.yml --vault-pass-file ./ansible/vault_pass --user ec2-user --key-file ./ansible/devops.pem
