@@ -122,5 +122,5 @@ jobs:
         run: |
           echo "${{ secrets.SSH_DEVOPS_KEY }}" > devops.pem
           echo "${{ secrets.VAULT_PASS }}" > .vault_pass
-          chmod 400 .devops.pem
+          chmod 400 devops.pem
           ansible-playbook ec2_deploy.yml --vault-pass-file .vault_pass --user ec2-user --key-file devops.pem
