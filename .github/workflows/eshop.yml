@@ -120,7 +120,7 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
         run: |
-          echo "${{ secrets.SSH_DEVOPS_KEY }}" > ./ansible/devops.pem
-          echo "${{ secrets.VAULT_PASS }}" > ./ansible/vault_pass
-          chmod 400 ./ansible/devops.pem
-          ansible-playbook ./ansible/ec2_deploy.yml --vault-pass-file ./ansible/vault_pass --user ec2-user --key-file ./ansible/devops.pem
+          echo "${{ secrets.SSH_DEVOPS_KEY }}" > devops.pem
+          echo "${{ secrets.VAULT_PASS }}" > .vault_pass
+          chmod 400 .devops.pem
+          ansible-playbook ec2_deploy.yml --vault-pass-file .vault_pass --user ec2-user --key-file devops.pem
