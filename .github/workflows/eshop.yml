@@ -1,4 +1,4 @@
-name: Build and tests eshop workflow
+name: Build, tests and deploy eshop workflow
 
 on:
   workflow_dispatch:
@@ -91,3 +91,33 @@ jobs:
       - name: Run tests
         run: |
           npm run test -- --colors
+
+  Deploy:
+    needs:
+      - Build
+      - Test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install ansible
+        run: pip3 install ansible boto boto3
+
+      - name: Ansible playbook
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+        run: |
+          echo "${{ secrets.SSH_DEVOPS_KEY }}" > ./ansible/devops.pem
+          echo "${{ secrets.VAULT_PASS }}" > ./ansible/vault_pass
+          chmod 400 ./ansible/devops.pem
+          ansible-playbook ./ansible/ec2_deploy.yml --vault-pass-file ./ansible/vault_pass --user ec2-user --key-file ./ansible/devops.pem
